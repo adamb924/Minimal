@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+<title>Minimal</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<link rel="stylesheet" href="jquery.tablesorter/themes/blue/style.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="minimal.css" type="text/css" media="screen" />
+<script type="text/javascript" src="jquery.tablesorter/jquery-latest.js"></script>
+<script type="text/javascript" src="jquery.tablesorter/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="minimal.js"></script>
+</head>
+<body>
+<div id="controls">
+<h1>Minimal &amp; Analogous Pairs</h1>
+
+<ol>
+<li>Copy/paste your data into the box below this panel. The chart will update automatically. The input must be &ldquo;form&lt;tab&gt;meaning&rdquo; You can copy/paste from a spreadsheet, for instance.</li>
+<li>You can omit the meaning if you don't need it. It's just there for convenience.</li>
+<li>Each pair is listed twice in the results, with alternate words and segments in the “First” and “Second” columns.</li>
+<li>Unfortunately Javascript is not yet the best at Unicode. Though there is hope for the future versions, for now transcriptions like [kʰæt] will be treated as four characters, etc.</li>
+<li>Here's some <a href="uzbek.txt">Uzbek data</a> if you want to see how it does with a larger data set.</li>
+</ol>
+
+<textarea id="words">
+bæt	bat
+kæt	cat
+gæb	gab
+kɪt	kit
+gɪb	Gibb
+kæjæk	kayak
+</textarea>
+<p><label for="foci">Differences involving one of these segments only:</label><input type="text" value="" id="foci"/></p>
+<p id="cae-checkbox"><input type="checkbox" id="cae"/><label for="cae">Attend to preceding and following context only (CAE)</label></p>
+<p id="cae-warning">You need to limit the search to a specific set of segments in searching for CAE; otherwise things will get out of hand.</p>
+<button onclick="find();">Find Pairs</button>
+</div><!-- controls -->
+
+<table id="output" class="tablesorter">
+<thead>
+<tr>
+<th>First</th>
+<th>Second</th>
+<th>Form</th>
+<th>Meaning</th>
+<th>Form</th>
+<th>Meaning</th>
+<th>Position</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+
+</tbody>
+</table>
+</body>
+</html>
