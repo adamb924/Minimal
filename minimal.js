@@ -141,8 +141,11 @@ function find() {
 			if( document.getElementById("cae").checked ) {
 				difference = words[i].isAnalogous( words[j], foci );
 				if( difference !== false ) {
-					addResultRow( words[i], words[j], difference, "CAE" );
-					addResultRow( words[j], words[i], Array( difference[1], difference[0], difference[2] ), "CAE" );
+					if( ( bothfoci === false &&  (foci.length === 0 || foci.indexOf( difference[0] ) != -1 || foci.indexOf( difference[1] ) != -1 ) )
+							|| ( bothfoci === true &&  (foci.length === 0 || ( foci.indexOf( difference[0] ) != -1 && foci.indexOf( difference[1] ) != -1 ) ) ) ) {
+						addResultRow( words[i], words[j], difference, "CAE" );
+						addResultRow( words[j], words[i], Array( difference[1], difference[0], difference[2] ), "CAE" );
+					}
 				}
 			}
 			difference = words[i].isMinimal( words[j] );
