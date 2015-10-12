@@ -67,7 +67,7 @@ function Word(form,meaning) {
 			} else if ( index == first.length - 1 ) {
 				match = second.search( new RegExp( first[first.length-2] + notf + '$' ,'g') );
 				if( match != -1 ) {
-					return [f, second[0], "Final" ];
+					return [f, second[second.length-1], "Final" ];
 				}
 			} else { // middle of string
 				var regexp = new RegExp( first[index-1] + notf + first[index+1] ,'g');
