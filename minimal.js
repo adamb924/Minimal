@@ -145,8 +145,33 @@ function find() {
 			}
 		}
 	}
-	$('table#output').show(0);
+	$('#output-panel').show(0);
 	$("table").trigger("update");
+}
+
+function tableToCsv() {
+	var code = "";
+	$('table#output').find('tr').each(function() {
+		$(this).find("td,th").each(function() {
+			code += "\"" + $(this).text().replace("\"","\\\"") + "\",";
+		});
+		code += "\r\n";
+	});
+	return code;
+}
+
+// http://stackoverflow.com/a/18197341/1447002
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
 }
 
 $(document).ready(function() {
@@ -164,5 +189,11 @@ $(document).ready(function() {
 			$("#cae-warning").hide();
 		}
 	});	
+
+	$( "#download-button" )
+		.click(function() {
+			download( 'minimal.csv' , tableToCsv() );
+		});
+
 });
 	

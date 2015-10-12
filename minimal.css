@@ -2,9 +2,12 @@ body {
 	font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
 }
 
+#output-panel {
+	display: none;
+}
+
 table.tablesorter {
 	width: inherit;
-	display: none;
 	font-size: 100%;
 	font-family: Charis SIL, serif;
 }
