@@ -1,5 +1,7 @@
 function Word(form,meaning) {
 	this.form = form;
+	var nonword = new XRegExp("\\P{L}+", "g")
+	this.form =  XRegExp.replace(this.form, nonword, '', 'all');
 	this.meaning = meaning;
 	this.isMinimal = function(otherWord) {
 		if( this.form == otherWord.form ) {
