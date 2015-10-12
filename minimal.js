@@ -131,6 +131,7 @@ function addResultRow( first, second, difference, type ) {
 function find() {
 	$('table#output > tbody > tr').remove();
 	var foci = Array();
+	var bothfoci = $("#foci-both").attr('checked');
 	if( $("#foci").val().trim().length > 0 ) {
 		foci = $("#foci").val().split(/\s+/);
 	}
@@ -146,7 +147,8 @@ function find() {
 			}
 			difference = words[i].isMinimal( words[j] );
 			if( difference !== false ) {
-				if( foci.length === 0 || foci.indexOf( difference[0] ) != -1 || foci.indexOf( difference[1] ) != -1 ) {
+				if( ( bothfoci === false &&  (foci.length === 0 || foci.indexOf( difference[0] ) != -1 || foci.indexOf( difference[1] ) != -1 ) )
+						|| ( bothfoci === true &&  (foci.length === 0 || ( foci.indexOf( difference[0] ) != -1 && foci.indexOf( difference[1] ) != -1 ) ) ) ) {
 					addResultRow( words[i], words[j], difference, "CIE" );
 					addResultRow( words[j], words[i], Array( difference[1], difference[0], difference[2] ), "CIE" );
 				}
