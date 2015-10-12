@@ -2,6 +2,9 @@ function Word(form,meaning) {
 	this.form = form;
 	this.meaning = meaning;
 	this.isMinimal = function(otherWord) {
+		if( this.form == otherWord.form ) {
+			return false;
+		}
 		var difference = Array();
 		if( otherWord.form.length != this.form.length ) {
 			return false;
@@ -28,6 +31,9 @@ function Word(form,meaning) {
 	};
 	
 	this.isAnalogous = function(otherWord, foci) {
+		if( this.form == otherWord.form ) {
+			return false;
+		}
 		var thisthis = this;
 		var form = this.form;
 		// for each focus
