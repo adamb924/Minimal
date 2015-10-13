@@ -229,6 +229,7 @@ function find() {
 		foci = $("#foci").val().split(/\s+/);
 	}
 	var words = getWords();
+	var showTable = false;
 	for( var i=0; i<words.length; i++ ) {
 		for( var j=i+1; j<words.length; j++ ) {
 			if( document.getElementById("cae").checked ) {
@@ -238,6 +239,7 @@ function find() {
 						( bothfoci === true &&  (foci.length === 0 || ( foci.indexOf( difference[0].toString() ) != -1 && foci.indexOf( difference[1].toString() ) != -1 ) ) ) ) {
 						addResultRow( words[i], words[j], difference, "CAE" );
 						addResultRow( words[j], words[i], Array( difference[1], difference[0], difference[2] ), "CAE" );
+						showTable = true;
 					}
 				}
 			}
@@ -247,12 +249,17 @@ function find() {
 					( bothfoci === true &&  (foci.length === 0 || ( foci.indexOf( difference[0].toString() ) != -1 && foci.indexOf( difference[1].toString() ) != -1 ) ) ) ) {
 					addResultRow( words[i], words[j], difference, "CIE" );
 					addResultRow( words[j], words[i], Array( difference[1], difference[0], difference[2] ), "CIE" );
+					showTable = true;
 				}
 			}
 		}
 	}
-	$('#output-panel').show(0);
-	$("table").trigger("update");
+	if( showTable ) {
+		$('#output-panel').show(0);
+		$("table").trigger("update");
+	} else {
+		$('#output-panel').hide(0);
+	}
 }
 
 function tableToCsv() {
