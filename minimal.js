@@ -46,7 +46,7 @@ function XString(base) {
 	
 	this.matchEndOfWord = function( beforeX, notX ) { // these arguments are strings
 		if( this.at( this.t.length - 1 ) != notX && this.at( this.t.length - 2 ) == beforeX ) {
-			return 0;
+			return this.t.length - 1;
 		}
 		for(var i=this.t.length-2; i>=0; i-- ) {
 			if( this.at(i+1).match(/\s/g) && this.at(i) != notX && this.at(i-1) == beforeX ) { 
@@ -159,7 +159,7 @@ function Word(form,meaning) {
 					return [f, new XString(second.at(match)), "Initial" ];
 				}
 			} else if ( first.isFinal(index) ) {
-				match = second.matchEndOfWord( first.at(first.length()-2), first.at(first.length()-1) );
+				match = second.matchEndOfWord( first.at(index-1), first.at(index) );
 				if( match != -1 ) {
 					return [f, new XString(second.at(match)), "Final" ];
 				}
