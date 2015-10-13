@@ -18,8 +18,8 @@
 <li>Copy/paste your data into the box below this panel. The chart will update automatically. The input must be &ldquo;form&lt;tab&gt;meaning&rdquo; You can copy/paste from a spreadsheet, for instance.</li>
 <li>You can omit the meaning if you don't need it. It's just there for convenience.</li>
 <li>Each pair is listed twice in the results, with alternate words and segments in the “First” and “Second” columns.</li>
-<li>Unfortunately Javascript is not yet the best at Unicode. Though there is hope for the future versions, for now transcriptions like [kʰæt] will be treated as four characters, etc.</li>
-<li>Here's some <a href="uzbek.txt">Uzbek data</a> if you want to see how it does with a larger data set.</li>
+<li>Composite glyphs should be treated sensibly. Words like [kʰæt] will be treated as three sounds, words with different accents will be treated differently, etc.</li>
+<li>Here's some (unpolished) <a href="uzbek.txt">Uzbek data</a> if you want to see how it does with a larger data set.</li>
 </ol>
 
 <textarea id="words">
@@ -28,7 +28,9 @@ kæt	cat
 gæb	gab
 kɪt	kit
 gɪb	Gibb
-kæjæk	kayak
+kʰæjæk	kayak
+skit	skeet
+gǽb	gab!
 </textarea>
 <p><label for="foci">Differences involving one of these segments only:</label><input type="text" value="" id="foci"/></p>
 <p><input type="checkbox" id="foci-both"/><label for="foci-both">Only report if the difference is two of the above segments</label></p>

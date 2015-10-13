@@ -1,24 +1,79 @@
+function XString(base) {
+	var glyph = XRegExp('\\p{L}[\\p{Lm}\\p{M}\\p{No}\\p{Sk}]*','g');
+	var t = []; // t for tokens
+	XRegExp.forEach( base, glyph, function (match, i) {
+		t.push( match[0] );
+	});
+	this.t = t;
+
+	this.at = function(i) {
+		return this.t[i];
+	};
+	
+	this.length = function() {
+		return this.t.length;
+	};
+	
+	this.isIdentical = function( otherWord ) {
+		if( this.t.length != otherWord.t.length ) {
+			return false;
+		}
+		for(var i=0; i<this.t.length; i++ ) {
+			if( this.t[i] != otherWord.t[i] ) {
+				return false;
+			}
+		}
+		return true;
+	};
+	
+	this.toString = function() {
+		var string = "";
+		for(var i=0; i<this.t.length; i++ ) {
+			string += this.t[i];
+		}
+		return string;
+	};
+	
+	this.indexOf = function(substring, from) { // substring is an XString
+		from = typeof from !== 'undefined' ? from : 0;
+		for(var i=from; i<this.t.length; i++ ) {
+			if( this.at(i) == substring.toString() ) { 
+				return i;
+			}
+		}
+		return -1;
+	};
+	
+	this.matchTriplet = function( beforeX, notX, afterX ) {
+		for(var i=1; i<this.t.length-1; i++ ) {
+			if( this.at(i-1) == beforeX && this.at(i) != notX && this.at(i+1) == afterX ) { 
+				return i;
+			}
+		}
+		return -1;
+	};
+}
+
 function Word(form,meaning) {
-	this.form = form;
-	var nonword = new XRegExp("\\P{L}+", "g")
-	this.form =  XRegExp.replace(this.form, nonword, '', 'all');
+	this.form = new XString(form);
+	var nonword = new XRegExp("[^\\w\\s]+", "g");
 	this.meaning = meaning;
 	this.isMinimal = function(otherWord) {
-		if( this.form == otherWord.form ) {
+		if( this.form.isIdentical( otherWord.form ) ) {
+			return false;
+		}
+		if( otherWord.form.length() != this.form.length() ) {
 			return false;
 		}
 		var difference = Array();
-		if( otherWord.form.length != this.form.length ) {
-			return false;
-		}
 		var diffs = 0;
-		for(var i=0; i<this.form.length; i++) {
-			if( this.form[i] != otherWord.form[i] ) {
-				difference[0] = this.form[i];
-				difference[1] = otherWord.form[i];  
+		for(var i=0; i<this.form.length(); i++) {
+			if( this.form.at(i) != otherWord.form.at(i) ) {
+				difference[0] = this.form.at(i);
+				difference[1] = otherWord.form.at(i);  
 				if( i === 0 ) {
 					difference[2] = "Initial";
-				} else if ( i == this.form.length-1 ) {
+				} else if ( i == this.form.length()-1 ) {
 					difference[2] = "Final";
 				} else {
 					difference[2] = "Medial";
@@ -40,7 +95,7 @@ function Word(form,meaning) {
 		var form = this.form;
 		// for each focus
 		for(var i=0; i<foci.length; i++) {
-			var f = foci[i];
+			var f = new XString( foci[i] );
 			var firstFocus = thisthis.checkForAnalogousMatch( form, otherWord.form, f );
 			if( firstFocus !== false ) {
 				return firstFocus;
@@ -53,27 +108,23 @@ function Word(form,meaning) {
 		return false;
 	};
 	
-	this.checkForAnalogousMatch = function( first, second, f ) {
+	this.checkForAnalogousMatch = function( first, second, f ) { // these parameters are all XStrings
 		// find the focus in this word
 		var indices = indicesOf( first, f);
 		for(var i=0; i<indices.length; i++) {
 			index = indices[i];
-			var notf = '[^' + first[index] + ']';
 			if( index === 0 ) {
-				match = second.search( new RegExp( '^' + notf + first[1] ,'g') );
-				if( match != -1 ) {
-					return [f, second[0], "Initial" ];
+				if( second.at(0) != first.at(0) && second.at(1) == first.at(1) ) {
+					return [f, second.at(0), "Initial" ];
 				}
-			} else if ( index == first.length - 1 ) {
-				match = second.search( new RegExp( first[first.length-2] + notf + '$' ,'g') );
-				if( match != -1 ) {
-					return [f, second[second.length-1], "Final" ];
+			} else if ( index == first.length() - 1 ) {
+				if( second.at(second.length() - 1) != first.at(first.length() - 1) && second.at(second.length() - 2) == first.at(first.length() - 2) ) {
+					return [f, new XString(second.at(second.length()-1)), "Final" ];
 				}
 			} else { // middle of string
-				var regexp = new RegExp( first[index-1] + notf + first[index+1] ,'g');
-				match = second.search(regexp);
+				match = second.matchTriplet( first.at(index-1), first.at(index), first.at(index+1) );
 				if( match != -1 ) {
-					return [f, second[match+1], "Medial" ];
+					return [f, new XString(second.at(match)), "Medial" ];
 				}
 			}
 		}
@@ -81,13 +132,13 @@ function Word(form,meaning) {
 	};
 }
 
-function indicesOf( str, substring ) {
+function indicesOf( xstring, substring ) {
 	var result = Array();
 	var position = 0;
-	// cycle through in
-	while( str.indexOf( substring, position) != -1 ) {
-		result.push( str.indexOf( substring, position) );
-		position = str.indexOf( substring, position) + 1;
+	// cycle through indices
+	while( xstring.indexOf( substring, position) != -1 ) {
+		result.push( xstring.indexOf( substring, position) );
+		position = xstring.indexOf( substring, position) + 1;
 	}
 	return result;
 }
@@ -110,15 +161,15 @@ function getWords() {
 function addResultRow( first, second, difference, type ) {
 	var tbody = $("table#output > tbody")[0];
 	var row = tbody.insertRow(-1);
-	row.insertCell(-1).innerHTML = difference[0];
-	row.insertCell(-1).innerHTML = difference[1];
-	row.insertCell(-1).innerHTML = "[" + first.form + "]";
+	row.insertCell(-1).innerHTML = difference[0].toString();
+	row.insertCell(-1).innerHTML = difference[1].toString();
+	row.insertCell(-1).innerHTML = "[" + first.form.toString() + "]";
 	if( first.meaning.length > 0 ) {
 		row.insertCell(-1).innerHTML = "“" + first.meaning + "”";
 	} else {
 		row.insertCell(-1);
 	}
-	row.insertCell(-1).innerHTML = "[" + second.form + "]";
+	row.insertCell(-1).innerHTML = "[" + second.form.toString() + "]";
 	if( second.meaning.length > 0 ) {
 		row.insertCell(-1).innerHTML = "“" + second.meaning + "”";
 	} else {
@@ -141,8 +192,8 @@ function find() {
 			if( document.getElementById("cae").checked ) {
 				difference = words[i].isAnalogous( words[j], foci );
 				if( difference !== false ) {
-					if( ( bothfoci === false &&  (foci.length === 0 || foci.indexOf( difference[0] ) != -1 || foci.indexOf( difference[1] ) != -1 ) )
-							|| ( bothfoci === true &&  (foci.length === 0 || ( foci.indexOf( difference[0] ) != -1 && foci.indexOf( difference[1] ) != -1 ) ) ) ) {
+					if( ( bothfoci === false &&  (foci.length === 0 || foci.indexOf( difference[0].toString() ) != -1 || foci.indexOf( difference[1].toString() ) != -1 ) ) || 
+						( bothfoci === true &&  (foci.length === 0 || ( foci.indexOf( difference[0].toString() ) != -1 && foci.indexOf( difference[1].toString() ) != -1 ) ) ) ) {
 						addResultRow( words[i], words[j], difference, "CAE" );
 						addResultRow( words[j], words[i], Array( difference[1], difference[0], difference[2] ), "CAE" );
 					}
@@ -150,8 +201,8 @@ function find() {
 			}
 			difference = words[i].isMinimal( words[j] );
 			if( difference !== false ) {
-				if( ( bothfoci === false &&  (foci.length === 0 || foci.indexOf( difference[0] ) != -1 || foci.indexOf( difference[1] ) != -1 ) )
-						|| ( bothfoci === true &&  (foci.length === 0 || ( foci.indexOf( difference[0] ) != -1 && foci.indexOf( difference[1] ) != -1 ) ) ) ) {
+				if( ( bothfoci === false &&  (foci.length === 0 || foci.indexOf( difference[0].toString() ) != -1 || foci.indexOf( difference[1].toString() ) != -1 ) ) || 
+					( bothfoci === true &&  (foci.length === 0 || ( foci.indexOf( difference[0].toString() ) != -1 && foci.indexOf( difference[1].toString() ) != -1 ) ) ) ) {
 					addResultRow( words[i], words[j], difference, "CIE" );
 					addResultRow( words[j], words[i], Array( difference[1], difference[0], difference[2] ), "CIE" );
 				}
