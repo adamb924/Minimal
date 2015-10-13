@@ -78,12 +78,12 @@ function XString(base) {
 	};
 	
 	this.isInitial = function(i) {
-		if( i == 0 ) { return true; }
+		if( i === 0 ) { return true; }
 		if( this.at(i-1).match(/\s/g) ) {
 			return true;
 		}
 		return false;
-	}
+	};
 	
 	this.isFinal = function(i) {
 		if( i == this.t.length - 1 ) { return true; }
@@ -91,7 +91,7 @@ function XString(base) {
 			return true;
 		}
 		return false;
-	}
+	};
 }
 
 function Word(form,meaning) {
@@ -186,16 +186,30 @@ function indicesOf( xstring, substring ) {
 }
 
 function getWords() { 
+	var strangeRE = XRegExp('[^\\s\\p{L}[\\p{Lm}\\p{M}\\p{No}\\p{Sk}]','g');
+	$('table#strange > tbody > tr').remove();
+	var tbody = $("table#strange > tbody")[0];
+	var showStrange = false;
 	var words = Array();
 	var plainText = document.getElementById("words").value;
 	var lines = plainText.trim().split(/[\n\r]/);
 	for(var i=0; i<lines.length; i++) {
 		var elements = lines[i].trim().split(/\t+/);
-		if( elements.length == 2 ) {
-			words.push( new Word( elements[0], elements[1] ) );
-		} else if ( elements.length == 1 ) {
-			words.push( new Word( elements[0], "" ) );
+		var form = elements[0];
+		var meaning = elements.length < 2 ? "" : elements[1];
+		if( XRegExp.match( form, strangeRE ).length > 0 ) {
+			var row = tbody.insertRow(-1);
+			row.insertCell(-1).innerHTML = form;
+			row.insertCell(-1).innerHTML = meaning;
+			showStrange = true;
+		} else {
+			words.push( new Word( form, meaning ) );
 		}
+	}
+	if( showStrange ) {
+		$("#strange-words").show(0);
+	} else {
+		$("#strange-words").hide(0);
 	}
 	return words;
 }
@@ -256,9 +270,11 @@ function find() {
 	}
 	if( showTable ) {
 		$('#output-panel').show(0);
+		$('#no-results').hide(0);
 		$("table").trigger("update");
 	} else {
 		$('#output-panel').hide(0);
+		$('#no-results').show(0);
 	}
 }
 

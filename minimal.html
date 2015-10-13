@@ -37,8 +37,20 @@ gǽb	gab!
 <p id="cae-checkbox"><input type="checkbox" id="cae"/><label for="cae">Attend to preceding and following context only (CAE)</label></p>
 <p id="cae-warning">You need to limit the search to a specific set of segments in searching for CAE; otherwise things will get out of hand.</p>
 <button onclick="find();">Find Pairs</button>
+<div id="strange-words">
+<h3>Words with strange characters (ignored)</h3>
+<table id="strange" class="tablesorter">
+<thead>
+<tr>
+<th>Form</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
 </div><!-- controls -->
-
 <div id="output-panel">
 <table id="output" class="tablesorter">
 <thead>
@@ -58,6 +70,8 @@ gǽb	gab!
 </table>
 <button id="download-button">Download as CSV</button>
 </div><!-- output-panel -->
-
+<div id="no-results">
+<em>There are no results to display.</em>
+</div>
 </body>
 </html>
