@@ -1,5 +1,5 @@
 function XString(base) {
-	var glyph = XRegExp('\\p{L}[\\p{Lm}\\p{M}\\p{No}\\p{Sk}]*','g');
+	var glyph = XRegExp('\\s|\\p{L}[\\p{Lm}\\p{M}\\p{No}\\p{Sk}]*','g');
 	var t = []; // t for tokens
 	XRegExp.forEach( base, glyph, function (match, i) {
 		t.push( match[0] );
@@ -44,7 +44,31 @@ function XString(base) {
 		return -1;
 	};
 	
-	this.matchTriplet = function( beforeX, notX, afterX ) {
+	this.matchEndOfWord = function( beforeX, notX ) { // these arguments are strings
+		if( this.at( this.t.length - 1 ) != notX && this.at( this.t.length - 2 ) == beforeX ) {
+			return 0;
+		}
+		for(var i=this.t.length-2; i>=0; i-- ) {
+			if( this.at(i+1).match(/\s/g) && this.at(i) != notX && this.at(i-1) == beforeX ) { 
+				return i;
+			}
+		}
+		return -1;
+	};
+	
+	this.matchBeginningOfWord = function( notX, afterX ) { // these arguments are strings
+		if( this.at(0) != notX && this.at(1) == afterX ) {
+			return 0;
+		}
+		for(var i=1; i<this.t.length-1; i++ ) {
+			if( this.at(i-1).match(/\s/g) && this.at(i) != notX && this.at(i+1) == afterX ) { 
+				return i;
+			}
+		}
+		return -1;
+	};
+	
+	this.matchTriplet = function( beforeX, notX, afterX ) { // these arguments are strings
 		for(var i=1; i<this.t.length-1; i++ ) {
 			if( this.at(i-1) == beforeX && this.at(i) != notX && this.at(i+1) == afterX ) { 
 				return i;
@@ -52,6 +76,22 @@ function XString(base) {
 		}
 		return -1;
 	};
+	
+	this.isInitial = function(i) {
+		if( i == 0 ) { return true; }
+		if( this.at(i-1).match(/\s/g) ) {
+			return true;
+		}
+		return false;
+	}
+	
+	this.isFinal = function(i) {
+		if( i == this.t.length - 1 ) { return true; }
+		if( this.at(i+1).match(/\s/g) ) {
+			return true;
+		}
+		return false;
+	}
 }
 
 function Word(form,meaning) {
@@ -88,7 +128,7 @@ function Word(form,meaning) {
 	};
 	
 	this.isAnalogous = function(otherWord, foci) {
-		if( this.form == otherWord.form ) {
+		if( this.form.isIdentical( otherWord.form ) ) {
 			return false;
 		}
 		var thisthis = this;
@@ -113,13 +153,15 @@ function Word(form,meaning) {
 		var indices = indicesOf( first, f);
 		for(var i=0; i<indices.length; i++) {
 			index = indices[i];
-			if( index === 0 ) {
-				if( second.at(0) != first.at(0) && second.at(1) == first.at(1) ) {
-					return [f, second.at(0), "Initial" ];
+			if( first.isInitial(index) ) { // TODO if it's preceded by a space
+				match = second.matchBeginningOfWord( first.at(index), first.at(index+1) );
+				if( match !== -1 ) {
+					return [f, new XString(second.at(match)), "Initial" ];
 				}
-			} else if ( index == first.length() - 1 ) {
-				if( second.at(second.length() - 1) != first.at(first.length() - 1) && second.at(second.length() - 2) == first.at(first.length() - 2) ) {
-					return [f, new XString(second.at(second.length()-1)), "Final" ];
+			} else if ( first.isFinal(index) ) {
+				match = second.matchEndOfWord( first.at(first.length()-2), first.at(first.length()-1) );
+				if( match != -1 ) {
+					return [f, new XString(second.at(match)), "Final" ];
 				}
 			} else { // middle of string
 				match = second.matchTriplet( first.at(index-1), first.at(index), first.at(index+1) );
