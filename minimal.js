@@ -132,20 +132,21 @@ function Word(form,meaning) {
 			return false;
 		}
 		var thisthis = this;
-		var form = this.form;
+		var differences = [];
 		// for each focus
 		for(var i=0; i<foci.length; i++) {
 			var f = new XString( foci[i] );
-			var firstFocus = thisthis.checkForAnalogousMatch( form, otherWord.form, f );
-			if( firstFocus !== false ) {
-				return firstFocus;
+			
+			var firstFocus = thisthis.checkForAnalogousMatch( thisthis.form, otherWord.form, f );
+			if( firstFocus !== false && !this.alreadyHas( differences, firstFocus) ) {
+				differences.push(firstFocus);
 			}
-			var secondFocus = thisthis.checkForAnalogousMatch( otherWord.form, form, f );
-			if( secondFocus !== false ) {
-				return secondFocus;
+			var secondFocus = thisthis.checkForAnalogousMatch( otherWord.form, thisthis.form, f );
+			if( secondFocus !== false && !this.alreadyHas( differences, secondFocus ) ) {
+				differences.push(secondFocus);
 			}
 		}
-		return false;
+		return differences;
 	};
 	
 	this.checkForAnalogousMatch = function( first, second, f ) { // these parameters are all XStrings
@@ -153,7 +154,7 @@ function Word(form,meaning) {
 		var indices = indicesOf( first, f);
 		for(var i=0; i<indices.length; i++) {
 			index = indices[i];
-			if( first.isInitial(index) ) { // TODO if it's preceded by a space
+			if( first.isInitial(index) ) {
 				match = second.matchBeginningOfWord( first.at(index), first.at(index+1) );
 				if( match !== -1 ) {
 					return [f, new XString(second.at(match)), "Initial" ];
@@ -168,6 +169,15 @@ function Word(form,meaning) {
 				if( match != -1 ) {
 					return [f, new XString(second.at(match)), "Medial" ];
 				}
+			}
+		}
+		return false;
+	};
+	
+	this.alreadyHas = function( differences, toCheck ) {
+		for( var i=0; i<differences.length; i++ ) {
+			if( ( differences[i][0].isIdentical( toCheck[0] ) && differences[i][1].isIdentical( toCheck[1] ) ) || ( differences[i][0].isIdentical( toCheck[1] ) && differences[i][1].isIdentical( toCheck[0] ) ) ) {
+				return true;
 			}
 		}
 		return false;
@@ -247,8 +257,9 @@ function find() {
 	for( var i=0; i<words.length; i++ ) {
 		for( var j=i+1; j<words.length; j++ ) {
 			if( document.getElementById("cae").checked ) {
-				difference = words[i].isAnalogous( words[j], foci );
-				if( difference !== false ) {
+				var differences = words[i].isAnalogous( words[j], foci );
+				for( var k=0; k<differences.length; k++) {
+					difference = differences[k];
 					if( ( bothfoci === false &&  (foci.length === 0 || foci.indexOf( difference[0].toString() ) != -1 || foci.indexOf( difference[1].toString() ) != -1 ) ) || 
 						( bothfoci === true &&  (foci.length === 0 || ( foci.indexOf( difference[0].toString() ) != -1 && foci.indexOf( difference[1].toString() ) != -1 ) ) ) ) {
 						addResultRow( words[i], words[j], difference, "CAE" );
