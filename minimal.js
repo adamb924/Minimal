@@ -248,7 +248,7 @@ function addResultRow( first, second, difference, type ) {
 function find() {
 	$('table#output > tbody > tr').remove();
 	var foci = Array();
-	var bothfoci = $("#foci-both").attr('checked');
+	var bothfoci = document.getElementById("foci-both").checked;
 	if( $("#foci").val().trim().length > 0 ) {
 		foci = $("#foci").val().split(/\s+/);
 	}
